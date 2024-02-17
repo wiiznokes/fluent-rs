@@ -64,14 +64,14 @@ pub fn serialize_with_options<'s, S: Slice<'s>>(
 }
 
 #[derive(Debug)]
-struct Serializer {
+pub struct Serializer {
     writer: TextWriter,
     options: Options,
     state: State,
 }
 
 impl Serializer {
-    fn new(options: Options) -> Self {
+    pub fn new(options: Options) -> Self {
         Serializer {
             writer: TextWriter::default(),
             options,
@@ -98,7 +98,7 @@ impl Serializer {
         }
     }
 
-    fn into_serialized_text(self) -> String {
+    pub fn into_serialized_text(self) -> String {
         self.writer.buffer
     }
 
@@ -106,7 +106,7 @@ impl Serializer {
         self.writer.write_literal(junk)
     }
 
-    fn serialize_free_comment<'s, S: Slice<'s>>(&mut self, comment: &Comment<S>, prefix: &str) {
+    pub fn serialize_free_comment<'s, S: Slice<'s>>(&mut self, comment: &Comment<S>, prefix: &str) {
         if self.state.wrote_non_junk_entry {
             self.writer.newline();
         }
@@ -114,7 +114,7 @@ impl Serializer {
         self.writer.newline();
     }
 
-    fn serialize_comment<'s, S: Slice<'s>>(&mut self, comment: &Comment<S>, prefix: &str) {
+    pub fn serialize_comment<'s, S: Slice<'s>>(&mut self, comment: &Comment<S>, prefix: &str) {
         for line in &comment.content {
             self.writer.write_literal(prefix);
 
@@ -127,7 +127,7 @@ impl Serializer {
         }
     }
 
-    fn serialize_message<'s, S: Slice<'s>>(&mut self, msg: &Message<S>) {
+    pub fn serialize_message<'s, S: Slice<'s>>(&mut self, msg: &Message<S>) {
         if let Some(comment) = msg.comment.as_ref() {
             self.serialize_comment(comment, "#");
         }
@@ -144,7 +144,7 @@ impl Serializer {
         self.writer.newline();
     }
 
-    fn serialize_term<'s, S: Slice<'s>>(&mut self, term: &Term<S>) {
+    pub fn serialize_term<'s, S: Slice<'s>>(&mut self, term: &Term<S>) {
         if let Some(comment) = term.comment.as_ref() {
             self.serialize_comment(comment, "#");
         }
@@ -159,7 +159,7 @@ impl Serializer {
         self.writer.newline();
     }
 
-    fn serialize_pattern<'s, S: Slice<'s>>(&mut self, pattern: &Pattern<S>) {
+    pub fn serialize_pattern<'s, S: Slice<'s>>(&mut self, pattern: &Pattern<S>) {
         let start_on_newline = pattern.starts_on_new_line();
 
         if start_on_newline {
@@ -178,7 +178,7 @@ impl Serializer {
         }
     }
 
-    fn serialize_attributes<'s, S: Slice<'s>>(&mut self, attrs: &[Attribute<S>]) {
+    pub fn serialize_attributes<'s, S: Slice<'s>>(&mut self, attrs: &[Attribute<S>]) {
         if attrs.is_empty() {
             return;
         }
@@ -193,7 +193,7 @@ impl Serializer {
         self.writer.dedent();
     }
 
-    fn serialize_attribute<'s, S: Slice<'s>>(&mut self, attr: &Attribute<S>) {
+    pub fn serialize_attribute<'s, S: Slice<'s>>(&mut self, attr: &Attribute<S>) {
         self.writer.write_literal(".");
         self.writer.write_literal(attr.id.name.as_ref());
         self.writer.write_literal(" =");
@@ -201,7 +201,7 @@ impl Serializer {
         self.serialize_pattern(&attr.value);
     }
 
-    fn serialize_element<'s, S: Slice<'s>>(&mut self, elem: &PatternElement<S>) {
+    pub fn serialize_element<'s, S: Slice<'s>>(&mut self, elem: &PatternElement<S>) {
         match elem {
             PatternElement::TextElement { value } => self.writer.write_literal(value.as_ref()),
             PatternElement::Placeable { expression } => match expression {
@@ -228,7 +228,7 @@ impl Serializer {
         }
     }
 
-    fn serialize_expression<'s, S: Slice<'s>>(&mut self, expr: &Expression<S>) {
+    pub fn serialize_expression<'s, S: Slice<'s>>(&mut self, expr: &Expression<S>) {
         match expr {
             Expression::Inline(inline) => self.serialize_inline_expression(inline),
             Expression::Select { selector, variants } => {
@@ -237,7 +237,7 @@ impl Serializer {
         }
     }
 
-    fn serialize_inline_expression<'s, S: Slice<'s>>(&mut self, expr: &InlineExpression<S>) {
+    pub fn serialize_inline_expression<'s, S: Slice<'s>>(&mut self, expr: &InlineExpression<S>) {
         match expr {
             InlineExpression::StringLiteral { value } => {
                 self.writer.write_literal("\"");
@@ -287,7 +287,7 @@ impl Serializer {
         }
     }
 
-    fn serialize_select_expression<'s, S: Slice<'s>>(
+    pub fn serialize_select_expression<'s, S: Slice<'s>>(
         &mut self,
         selector: &InlineExpression<S>,
         variants: &[Variant<S>],
@@ -306,7 +306,7 @@ impl Serializer {
         self.writer.dedent();
     }
 
-    fn serialize_variant<'s, S: Slice<'s>>(&mut self, variant: &Variant<S>) {
+    pub fn serialize_variant<'s, S: Slice<'s>>(&mut self, variant: &Variant<S>) {
         if variant.default {
             self.writer.write_char_into_indent('*');
         }
@@ -317,7 +317,7 @@ impl Serializer {
         self.serialize_pattern(&variant.value);
     }
 
-    fn serialize_variant_key<'s, S: Slice<'s>>(&mut self, key: &VariantKey<S>) {
+    pub fn serialize_variant_key<'s, S: Slice<'s>>(&mut self, key: &VariantKey<S>) {
         match key {
             VariantKey::NumberLiteral { value } | VariantKey::Identifier { name: value } => {
                 self.writer.write_literal(value.as_ref())
@@ -325,7 +325,7 @@ impl Serializer {
         }
     }
 
-    fn serialize_call_arguments<'s, S: Slice<'s>>(&mut self, args: &CallArguments<S>) {
+    pub fn serialize_call_arguments<'s, S: Slice<'s>>(&mut self, args: &CallArguments<S>) {
         let mut argument_written = false;
 
         self.writer.write_literal("(");

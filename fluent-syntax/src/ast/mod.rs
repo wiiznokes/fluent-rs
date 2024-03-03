@@ -86,6 +86,7 @@
 //! canonical form of the AST is suitable for a round-trip.
 mod helper;
 
+use derivative::Derivative;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -253,13 +254,17 @@ pub enum Entry<S> {
 ///     }
 /// );
 /// ```
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Derivative)]
+#[derivative(Debug, PartialEq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Message<S> {
     pub id: Identifier<S>,
     pub value: Option<Pattern<S>>,
     pub attributes: Vec<Attribute<S>>,
     pub comment: Option<Comment<S>>,
+    
+    #[derivative(PartialEq="ignore")]
+    pub position: usize,
 }
 
 /// A Fluent [`Term`].
@@ -584,10 +589,13 @@ pub struct Attribute<S> {
 ///     }
 /// );
 /// ```
-#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Derivative)]
+#[derivative(Debug, PartialEq, Eq, Clone, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Identifier<S> {
     pub name: S,
+    #[derivative(PartialEq="ignore", Hash="ignore")]
+    pub position: usize,
 }
 
 /// Variant is a single branch of a value in a [`Select`](Expression::Select) expression.

@@ -123,6 +123,7 @@ where
             value: pattern,
             attributes,
             comment: None,
+            position: entry_start
         })
     }
 
@@ -190,6 +191,7 @@ where
     }
 
     pub(super) fn get_identifier_unchecked(&mut self) -> ast::Identifier<S> {
+        let initial_ptr = self.ptr;
         let mut ptr = self.ptr;
 
         while matches!(get_byte!(self, ptr), Some(b) if b.is_ascii_alphanumeric() || *b == b'-' || *b == b'_')
@@ -200,7 +202,10 @@ where
         let name = self.source.slice(self.ptr - 1..ptr);
         self.ptr = ptr;
 
-        ast::Identifier { name }
+        ast::Identifier { 
+            name,
+            position: initial_ptr,
+        }
     }
 
     pub(super) fn get_identifier(&mut self) -> Result<ast::Identifier<S>> {

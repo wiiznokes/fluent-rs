@@ -246,7 +246,10 @@ impl Serializer {
             }
             InlineExpression::NumberLiteral { value } => self.writer.write_literal(value.as_ref()),
             InlineExpression::VariableReference {
-                id: Identifier { name: value },
+                id: Identifier { 
+                    name: value,
+                    ..
+                },
             } => {
                 self.writer.write_literal("$");
                 self.writer.write_literal(value.as_ref());
@@ -478,12 +481,16 @@ mod test {
     macro_rules! text_message {
         ($name:expr, $value:expr) => {
             Entry::Message(Message {
-                id: Identifier { name: $name },
+                id: Identifier { 
+                    name: $name,
+                    position: 0,
+                },
                 value: Some(Pattern {
                     elements: vec![PatternElement::TextElement { value: $value }],
                 }),
                 attributes: vec![],
                 comment: None,
+                position: 0,
             })
         };
     }
@@ -564,7 +571,10 @@ mod test {
                 elements: vec![
                     PatternElement::Placeable {
                         expression: Expression::Inline(InlineExpression::VariableReference {
-                            id: Identifier { name: "num" },
+                            id: Identifier { 
+                                name: "num",
+                                position: 0,
+                            },
                         }),
                     },
                     PatternElement::TextElement { value: " bar" },

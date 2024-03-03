@@ -196,6 +196,7 @@ where
                     named.push(ast::NamedArgument {
                         name: ast::Identifier {
                             name: id.name.clone(),
+                            position: self.ptr
                         },
                         value: val,
                     });

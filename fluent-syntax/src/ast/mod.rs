@@ -259,8 +259,12 @@ pub enum Entry<S> {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Message<S> {
     pub id: Identifier<S>,
+    
+    #[derivative(PartialEq="ignore")]
     pub value: Option<Pattern<S>>,
+    #[derivative(PartialEq="ignore")]
     pub attributes: Vec<Attribute<S>>,
+    #[derivative(PartialEq="ignore")]
     pub comment: Option<Comment<S>>,
     
     #[derivative(PartialEq="ignore")]

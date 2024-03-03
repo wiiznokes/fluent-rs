@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "fluent-syntax/Cargo.toml"
+    ],
+}
